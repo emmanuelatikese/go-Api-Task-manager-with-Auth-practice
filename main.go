@@ -12,7 +12,7 @@ import (
 
 
 func main() {
-	 err := apiDB.ConnectMongo()
+	err := apiDB.ConnectMongo()
 	if err != nil {
 		log.Fatal("not able to connect")
 	}

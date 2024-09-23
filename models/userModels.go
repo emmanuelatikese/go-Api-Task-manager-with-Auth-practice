@@ -1,4 +1,4 @@
-package routes
+package model
 
 type UserModel struct {
 	Username string `json:"username"`

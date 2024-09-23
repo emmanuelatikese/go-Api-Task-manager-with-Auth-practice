@@ -10,32 +10,36 @@ import (
 	"api.task/models"
 	"api.task/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SignUp (w http.ResponseWriter, r *http.Request) {
-	var userModel routes.UserModel
-	userMap := make(map[string]string)
-	mongDb := apiDB.MongoDB
-	userCollection := mongDb.Collection("userCollection")
-	ctx := apiDB.Ctx
 
+
+
+func SignUp (w http.ResponseWriter, r *http.Request) {
+	var userModel model.UserModel
+	ctx := apiDB.Ctx
+	userCollection := apiDB.UserCollection
+	userMap := make(map[string]string)
 	err := json.NewDecoder(r.Body).Decode(&userMap)
 	if err != nil {
 		apiUtils.JsonResponse(err.Error(), w, http.StatusBadRequest)
 		return
 	}
-	var commonUser routes.UserModel
-	err = userCollection.FindOne(ctx, bson.M{"username": userModel.Username}).Decode(&commonUser)
-	if err != nil{
-		apiUtils.JsonResponse(err, w, 500)
+	var commonUser model.UserModel
+
+	err = userCollection.FindOne(ctx, bson.M{"username": userMap["username"]}).Decode(commonUser)
+	if err != mongo.ErrNoDocuments{
+		apiUtils.JsonResponse("Username used", w, http.StatusNotAcceptable)
 		return
 	}
-	
-	log.Print(userMap["username"])
+
+
 	if userMap["username"] == "" || userMap["password"] != userMap["confirmed_password"] {
 		apiUtils.JsonResponse("Username invalid or Passwords mismatch", w, http.StatusNotAcceptable)
 		return
+
 	}
 	if len(userMap["password"]) < 6 {
 		log.Print(len(userMap["password"]))
@@ -43,7 +47,7 @@ func SignUp (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userModel = routes.UserModel{
+	userModel = model.UserModel{
 		Username: userMap["username"],
 		Email: userMap["email"],
 		Password: []byte(userMap["password"]),
@@ -71,3 +75,5 @@ func SignUp (w http.ResponseWriter, r *http.Request) {
 
 	apiUtils.JsonResponse(response, w, 200)
 }
+
+
