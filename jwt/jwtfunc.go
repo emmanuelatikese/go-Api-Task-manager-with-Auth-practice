@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 

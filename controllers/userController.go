@@ -1,10 +1,10 @@
 package controllers
 
 import (
-
 	"encoding/json"
 	"log"
 	"net/http"
+
 	"api.task/db"
 	jwtFunc "api.task/jwt"
 	"api.task/models"
@@ -46,29 +46,25 @@ func SignUp (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Print(userMap["password"])
-
 	HashPassword, err := bcrypt.GenerateFromPassword([]byte(userMap["password"]), bcrypt.DefaultCost)
 	if err != nil {
 		apiUtils.JsonResponse(err.Error(), w, 500)
 		return
 	}
+	log.Print(len(HashPassword))
 	userModel = model.UserModel{
 		Username: userMap["username"],
 		Email: userMap["email"],
 		Password: HashPassword,
 	}
 
-
-
 	insertId, err := userCollection.InsertOne(ctx, userModel)
 	if err != nil {
 		apiUtils.JsonResponse(err, w, 500)
 	}
 	jwtFunc.GenerateToken(insertId.InsertedID, w)
-
 	response := map[string]interface{}{
-		"_id": userModel.ID,
+		"_id": insertId.InsertedID,
 		"username": userModel.Username,
 		"email": userModel.Email,
 	}
@@ -91,26 +87,25 @@ func Login (w http.ResponseWriter, r *http.Request) {
 		apiUtils.JsonResponse("fill all fields", w, http.StatusNotAcceptable)
 		return
 	}
+	username := loginMap["username"]
 
 	var filterUser model.UserModel
 
-	err = userCollection.FindOne(ctx, bson.M{"username": loginMap["username"]}).Decode(filterUser)
+	err = userCollection.FindOne(ctx, bson.M{"username": username}).Decode(&filterUser) // not adding &filterUser was a problem
 	if err != nil {
 		if err == mongo.ErrNoDocuments{
 			apiUtils.JsonResponse("User and password don't exist", w, http.StatusNotFound)
 			return
 		}
 	}
-	strpassword := string(filterUser.Password)
-	log.Print(strpassword)
-	log.Print(loginMap["password"])
-	err = bcrypt.CompareHashAndPassword(filterUser.Password, []byte(loginMap["password"]))
+
+	err = bcrypt.CompareHashAndPassword([]byte(filterUser.Password), []byte(loginMap["password"]))
 	if err != nil {
+		log.Print(err)
 		apiUtils.JsonResponse("Wrong password", w, http.StatusNotAcceptable)
 		return
 	}
-
-	jwtFunc.GenerateToken(filterUser.ID, w)
+	jwtFunc.GenerateToken(filterUser.Id, w)
 	apiUtils.JsonResponse("Login in successfully", w, 200)
 }
 
