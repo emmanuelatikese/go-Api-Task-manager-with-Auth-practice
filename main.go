@@ -19,6 +19,7 @@ func main() {
 	log.Print("db connected ....")
 	mux := mux.NewRouter().StrictSlash(false)
 	mux.HandleFunc("/signUp", controllers.SignUp).Methods("POST")
+	mux.HandleFunc("/login", controllers.Login).Methods("POST")
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	log.Print("listening to server: 8080")
