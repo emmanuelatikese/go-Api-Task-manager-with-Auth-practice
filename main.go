@@ -18,6 +18,7 @@ func main() {
 	log.Print("db connected ....")
 	mux := mux.NewRouter().StrictSlash(false)
 	routes.AuthRouter(mux)
+	routes.TaskRouter(mux)
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	log.Print("listening to server: 8080")
