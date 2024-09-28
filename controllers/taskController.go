@@ -123,3 +123,39 @@ func UpdateTask (w http.ResponseWriter, r *http.Request){
 	}
 	apiUtils.JsonResponse(filter, w, 201)
 }
+
+func DeleteOne (w http.ResponseWriter, r *http.Request){
+	id := mux.Vars(r)["id"]
+	if id == ""{
+		apiUtils.JsonResponse("not found", w, 404)
+		return
+	}
+
+	ctx, taskCollection := apiDB.Ctx, apiDB.TaskCollection
+
+	deleteResult, err := taskCollection.DeleteOne(ctx, bson.D{{}})
+	if err != nil {
+		apiUtils.JsonResponse(err, w, http.StatusInternalServerError)
+		return
+	}
+
+	if deleteResult.DeletedCount == 0 {
+		apiUtils.JsonResponse("Tasks don't exit", w, 404)
+		return
+	}
+	apiUtils.JsonResponse("Deleted successfully", w, 201)
+}
+
+func DeleteAll (w http.ResponseWriter, r *http.Request){
+	ctx, taskCollection := apiDB.Ctx, apiDB.TaskCollection
+	alltask, err := taskCollection.DeleteMany(ctx, bson.D{{}})
+	if err != nil {
+		apiUtils.JsonResponse(err, w, 500)
+		return
+	}
+	if alltask.DeletedCount == 0 {
+		apiUtils.JsonResponse("No tasks available", w, 404)
+		return
+	}
+	apiUtils.JsonResponse("All deleted successfully", w, 201)
+}
