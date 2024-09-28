@@ -2,9 +2,8 @@ package main
 
 import (
 	"log"
-
-	"api.task/controllers"
 	apiDB "api.task/db"
+	"api.task/routes"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 )
@@ -18,9 +17,7 @@ func main() {
 	}
 	log.Print("db connected ....")
 	mux := mux.NewRouter().StrictSlash(false)
-	mux.HandleFunc("/signUp", controllers.SignUp).Methods("POST")
-	mux.HandleFunc("/login", controllers.Login).Methods("POST")
-	mux.HandleFunc("/logout", controllers.Logout).Methods("POST")
+	routes.AuthRouter(mux)
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	log.Print("listening to server: 8080")
