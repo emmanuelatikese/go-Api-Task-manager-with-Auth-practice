@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"api.task/db"
 	jwtFunc "api.task/jwt"
@@ -107,5 +108,20 @@ func Login (w http.ResponseWriter, r *http.Request) {
 	}
 	jwtFunc.GenerateToken(filterUser.Id, w)
 	apiUtils.JsonResponse("Login in successfully", w, 200)
+}
+
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	cookies := &http.Cookie{
+		Name: "jwt_token",
+		Value: "",
+		Path:     "/",
+		Expires: time.Unix(0,0),
+        HttpOnly: true,
+        Secure:   true,
+        MaxAge:   -1,
+	}
+	http.SetCookie(w, cookies)
+	apiUtils.JsonResponse("Logout successfully", w, 200)
 }
 

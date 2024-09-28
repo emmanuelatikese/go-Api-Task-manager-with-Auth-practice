@@ -20,6 +20,7 @@ func main() {
 	mux := mux.NewRouter().StrictSlash(false)
 	mux.HandleFunc("/signUp", controllers.SignUp).Methods("POST")
 	mux.HandleFunc("/login", controllers.Login).Methods("POST")
+	mux.HandleFunc("/logout", controllers.Logout).Methods("POST")
 	n := negroni.Classic()
 	n.UseHandler(mux)
 	log.Print("listening to server: 8080")

@@ -58,6 +58,7 @@ func GenerateToken (id interface{}, w http.ResponseWriter){
 	cookies := &http.Cookie{
 		Name: "jwt_token",
 		Value: jwtToken,
+		Expires: time.Now().Add(time.Hour * 24 * 4),
 		Path:     "/",
         HttpOnly: true,
         Secure:   false,
