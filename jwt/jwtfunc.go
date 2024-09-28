@@ -4,10 +4,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -67,4 +69,23 @@ func GenerateToken (id interface{}, w http.ResponseWriter){
 	http.SetCookie(w, cookies)
 }
 
-// func VerifyToken()
+func Verify (w http.ResponseWriter, r *http.Request, value string)(interface{}, error){
+	tk, err := jwt.Parse(value, func(tk *jwt.Token) (interface{}, error){
+		if _, ok := tk.Method.(*jwt.SigningMethodRSA); !ok {
+			err := errors.New("invalid token")
+			return "", err
+		}
+		return publicKey, nil
+	})
+	if err != nil {
+		log.Print(err)
+		return "", err
+	}
+	if tk.Valid {
+		if jwtMap, ok := tk.Claims.(jwt.MapClaims); ok{
+			value := jwtMap["sub"]
+			return value, nil
+		}
+	}
+	return "", err
+}
