@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	apiDB "api.task/db"
 	model "api.task/models"
@@ -110,7 +111,8 @@ func UpdateTask (w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	
+	updateTask.UpdatedAt = time.Now()
+
 	var filter bson.M
 	err = taskCollection.FindOneAndUpdate(ctx,
 		bson.M{"_id": priId}, bson.M{"$set": updateTask},
