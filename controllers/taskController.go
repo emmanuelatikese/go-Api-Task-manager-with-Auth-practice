@@ -84,7 +84,10 @@ func FindAll (w http.ResponseWriter, r *http.Request){
 		apiUtils.JsonResponse(err, w, 500)
 		return
 	}
-
+	if alltask == nil {
+		apiUtils.JsonResponse("No tasks available", w, 200)
+		return
+	}
 	apiUtils.JsonResponse(alltask, w, 200)
 }
 
