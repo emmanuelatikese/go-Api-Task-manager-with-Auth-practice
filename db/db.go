@@ -14,8 +14,6 @@ var (
 	UserCollection *mongo.Collection
 	TaskCollection *mongo.Collection
 )
-
-
 // the function might not be exported if the function name start with lowercase
 func ConnectMongo() error {
 	gotenv.Load()
