@@ -9,7 +9,6 @@ import (
 )
 //I am told negroni is quite old now but this library is quite amazing.
 
-
 func main() {
 	err := apiDB.ConnectMongo()
 	if err != nil {
